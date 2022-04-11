@@ -1,15 +1,14 @@
 <template>
-<form @submit.prevent="uploadPhoto" id="uploadForm" class="d-flex flex-column justify-content-center">
-    <div>
+    <form @submit.prevent="uploadPhoto" method="post" enctype="multipart/form-data" id="uploadForm" >
+    
         <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="desc" rows="3"></textarea>
-    </div>
-    <div>
-        <input type="file" id="formFileSm" class="form-control form-control-sm" >
-        <label for="formFileSm" class="form-label">Choose file</label>
+        <textarea class="description" id="description" rows="25" required></textarea>
+    
+        <input type="file" name="photo" id="photo" required>
+        <label for="photo">Choose file</label>
         <button v-on:click="uploadPhoto" class="btn btn-primary">Upload File</button>
-    </div>
-</form>
+    
+    </form>
 </template>
 
 <script> 
@@ -18,19 +17,20 @@ data(){
     return {
         csrf_token: ''
     }
+}, 
+created() {
+    this.getCsrfToken();
 },
-    getCsrfToken() {
-        let self = this;
-        fetch('/api/csrf-token')
-            .then((response) => response.json())
-            .then((data) => {
-            console.log(data);
-            self.csrf_token = data.csrf_token;
-        });
-    },
-    created() {
-        this.getCsrfToken();
+getCsrfToken() {
+    let self = this;
+    fetch('/api/csrf-token')
+        .then((response) => response.json())
+        .then((data) => {
+        console.log(data);
+        self.csrf_token = data.csrf_token;
+    });
 },
+    
 methods: {
     uploadPhoto() {
         let uploadForm = document.getElementById('uploadForm');

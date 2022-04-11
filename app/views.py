@@ -7,7 +7,7 @@ This file creates your application.
 
 from sqlalchemy import false
 from app import app
-from flask import render_template, request, jsonify, send_file
+from flask import render_template, request, jsonify, send_file, flash
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import generate_csrf
 import os
@@ -28,7 +28,7 @@ def index():
 # The functions below should be applicable to all Flask apps.
 ###
 
-@app.route('/api/upload', methods=['POST'])
+""" @app.route('/api/upload', methods=['POST'])
 def upload():
      # Instantiate your form class
     form = UploadForm()
@@ -39,21 +39,38 @@ def upload():
             photo = form.photo.data
             filename = secure_filename(photo.filename)
             photo.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
-            tasks = {tasks: [
+            tasks = {
+                tasks: [
                     {'message': 'File Upload Successful'},
                     {'filename': filename},
                     {'description': form.description.data}
-                    ]
+                ]
             }
-            return jsonify(message=tasks), 202
+            return jsonify(tasks=tasks), 202
         else:
             errors= {
-                errors: [
+                "errors": [
                     {'success': False},
                     {'errors': form_errors()}
                 ]
             }
-            return jsonify (message=errors), 403
+            return jsonify (errors=errors), 403 """
+
+@app.route('/api/upload', methods=['POST'])
+def upload():
+    form = UploadForm()
+
+    if form.validate_on_submit() == True:
+            description = request.form['description']
+            file = request.files['photo']
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+            flash('File Uploaded Succesfully','sucessful')
+            return jsonify({"message": "File Upload Successful", "filename": filename, "description": description})
+    else:
+        return jsonify({"errors":[{"filename": form_errors(form)}]})
+
 
 @app.route('/api/csrf-token', methods=['GET'])
 def get_csrf():
